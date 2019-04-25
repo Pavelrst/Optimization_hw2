@@ -1,7 +1,57 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
+def armijo_plot(armijo):
+    alpas = np.linspace(0, 1, num=1000)
+    phi_list = []
+    tangent_list = []
+    elevated_tangent_list = []
+    for idx, alpha in enumerate(alpas):
+        phi_list.append(armijo.get_phi_val(alpha))
+        tangent_list.append(armijo.get_tanget_val(alpha))
+        elevated_tangent_list.append(armijo.get_evevated_tangent_val(alpha))
+
+    a, = plt.plot(alpas, phi_list, label='phi')
+    b, = plt.plot(alpas, tangent_list, label='tangent')
+    c, = plt.plot(alpas, elevated_tangent_list, label='elevated_tangent')
+    plt.legend(handles=[a, b, c])
+    plt.ylabel('Phi(alpha)')
+    plt.xlabel('alpha')
+    plt.show()
 
 
-def calc_step_size(x, func_val, func_grad, alpha=1, sigma=0.25, beta=0.5):
+class armijo_phi_func:
+    def __init__(self, x, func_val, func_grad, direction, sigma=0.25, beta=0.5):
+        self.f = func_val
+        self.g = func_grad
+        self.x = x
+        self.direction = direction
+        self.sigma = sigma
+        self.beta = beta
+
+    def get_phi_val(self, alpha):
+        # The direction is opposite to gradient.
+        alpha_d = -alpha*self.direction(self.x)
+        val = self.f(self.x + alpha_d) - self.f(self.x)
+        return val
+
+    def get_tanget_val(self, alpha):
+        '''
+        :param alpha: given step size.
+        :return: value of tangent to phi at given alpha.
+        '''
+        c = -np.matmul(self.g(self.x), self.direction(self.x))
+        return alpha * c
+
+    def get_evevated_tangent_val(self, alpha):
+        '''
+        :param alpha: given step size.
+        :return: value of tangent to phi at given alpha.
+        '''
+        c = -np.matmul(self.g(self.x), self.direction(self.x))
+        return self.sigma * alpha * c
+
+def calc_step_size(x, func_val, func_grad, alpha=1, sigma=0.25, beta=0.5, graphic=True):
     '''
     Denotre Phi(alpha) as function of step size: Phi(alpha)=f(x+alpha*d)-f(x)
     while d is direction. Deriviate Phi by alpha and we get:
@@ -20,17 +70,13 @@ def calc_step_size(x, func_val, func_grad, alpha=1, sigma=0.25, beta=0.5):
     :return: step size which is fulfilling Armijo condition.
     '''
 
-    # f(x+alpha*d)-f(x)
-    left_armijo = func_val(x + alpha*func_grad(x)) - func_val(x)
-
-    # sigma*alpha*c
-    c = np.matmul(np.ones(len(x)), func_grad(x))
-    right_armijo = sigma*alpha*c
+    armijo = armijo_phi_func(x, func_val, func_grad, func_grad, sigma=0.25, beta=0.5)
+    if graphic:
+        armijo_plot(armijo)
 
     # f(x+alpha*d)-f(x) <= sigma*alpha*c
-    while left_armijo > right_armijo:
-        print("left_armijo > right_armijo:", left_armijo, " > ", right_armijo)
-        # Decrement alpha by factor beta
+    while armijo.get_phi_val(alpha) > armijo.get_evevated_tangent_val(alpha):
         alpha = alpha * beta
-        right_armijo = sigma * alpha * c
-        left_armijo = func_val(x + alpha * func_grad(x)) - func_val(x)
+
+    return alpha
+

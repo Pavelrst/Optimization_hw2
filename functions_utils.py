@@ -4,7 +4,7 @@ from numdiff_utils import numdiff
 from scipy.io import loadmat
 
 
-def rosen_optim_pos(N=10):
+def rosen_optimal(N=10):
     '''
     Optimal value of Rosenbrock function at [1,1,1,1....1,1]
     :param N: num of variables in Rosenbrock function
@@ -22,8 +22,8 @@ def rosen_val(x):
     for idx in range(len(x)-1):
         val += (1-x[idx])**2 + 100*(x[idx+1]-(x[idx])**2)**2
 
-    if val != rosen(x):
-        np.testing.assert_almost_equal(val, rosen(x))
+    #if val != rosen(x):
+    #    np.testing.assert_almost_equal(val, rosen(x))
 
     return val
 

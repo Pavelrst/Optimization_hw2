@@ -9,14 +9,25 @@ from functions_utils import quad_grad_ill
 from numdiff_utils import numdiff
 
 
-def gradient_descent(x, func_val, func_grad, step_size, acc=0.00001, max_steps=100000):
-
+def gradient_descent(x, func_val, func_grad, step_size, acc=0.00001, max_steps=100000, graphic=True):
+    '''
+    :param x: starting point of algo
+    :param func_val: pointer to function we wish to optimize
+    :param func_grad: pointer to grad of function we wish to optimize
+    :param step_size: ste size of gradient descent
+    :param acc: accuracy threshold for early stopping
+    :param max_steps: max iterations of gradient descent
+    :return: position of optimal point
+    '''
     f_list = []
     for step in range(max_steps):
         f_list.append(func_val(x))
         x = x - step_size * func_grad(x)
 
-    plot_convergence(f_list, rosen_optim_pos(len(x)))
+    if graphic:
+        plot_convergence(f_list, rosen_optim_pos(len(x)))
+
+    return x
 
 
 def plot_convergence(f_list, val_optimal):

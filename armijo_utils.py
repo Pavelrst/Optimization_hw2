@@ -21,15 +21,16 @@ def calc_step_size(x, func_val, func_grad, alpha=1, sigma=0.25, beta=0.5):
     '''
 
     # f(x+alpha*d)-f(x)
-    x1 = x
-    x2 = x + alpha*func_grad(x)
-    left_armijo = func_val(x2) - func_val(x1)
+    left_armijo = func_val(x + alpha*func_grad(x)) - func_val(x)
 
     # sigma*alpha*c
-    c = np.matmul(func_grad(x), func_grad(x))
+    c = np.matmul(np.ones(len(x)), func_grad(x))
     right_armijo = sigma*alpha*c
 
+    # f(x+alpha*d)-f(x) <= sigma*alpha*c
     while left_armijo > right_armijo:
+        print("left_armijo > right_armijo:", left_armijo, " > ", right_armijo)
         # Decrement alpha by factor beta
         alpha = alpha * beta
         right_armijo = sigma * alpha * c
+        left_armijo = func_val(x + alpha * func_grad(x)) - func_val(x)

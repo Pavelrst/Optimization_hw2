@@ -7,7 +7,7 @@ from functions_utils import quad_grad_well
 from functions_utils import quad_val_ill
 from functions_utils import quad_grad_ill
 from numdiff_utils import numdiff
-
+from armijo_utils import calc_step_size
 
 def gradient_descent(x, func_val, func_grad, step_size, acc=0.00001, max_steps=100000, graphic=True):
     '''
@@ -20,6 +20,9 @@ def gradient_descent(x, func_val, func_grad, step_size, acc=0.00001, max_steps=1
     :return: position of optimal point
     '''
     f_list = []
+
+    step_size = calc_step_size(x, func_val, func_grad)
+
     for step in range(max_steps):
         f_list.append(func_val(x))
         x = x - step_size * func_grad(x)

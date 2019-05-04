@@ -8,7 +8,7 @@ class Armijo_method():
         self.sigma = sigma
         self.beta = beta
 
-    def calc_step_size(self, x, func):
+    def calc_step_size(self, x, func, direction):
         '''
         Denotre Phi(alpha) as function of step size: Phi(alpha)=f(x+alpha*d)-f(x)
         while d is direction. Deriviate Phi by alpha and we get:
@@ -28,7 +28,7 @@ class Armijo_method():
         '''
 
         self.armijo = ArmijoPhiFunc(x, func.val, func.grad,
-                                    func.grad, sigma=0.25, beta=0.5)
+                                    direction=direction, sigma=0.25, beta=0.5)
 
         alpha = self.initial_alpha
         # f(x+alpha*d)-f(x) <= sigma*alpha*c
@@ -52,6 +52,7 @@ class Armijo_method():
         plt.legend(handles=[a, b, c])
         plt.ylabel('Phi(alpha)')
         plt.xlabel('alpha')
+        plt.grid()
         plt.show()
 
 
@@ -66,7 +67,7 @@ class ArmijoPhiFunc:
 
     def phi_val(self, alpha):
         # The direction is opposite to gradient.
-        alpha_d = -alpha*self.direction(self.x)
+        alpha_d = -alpha*self.direction
         val = self.f(self.x + alpha_d) - self.f(self.x)
         return val
 
@@ -75,7 +76,8 @@ class ArmijoPhiFunc:
         :param alpha: given step size.
         :return: value of tangent to phi at given alpha.
         '''
-        c = -np.matmul(self.g(self.x), self.direction(self.x))
+        c = -np.matmul(self.g(self.x), self.direction)
+        #c = -np.matmul(self.direction, self.direction)
         return alpha * c
 
     def elevated_tangent_val(self, alpha):
@@ -83,7 +85,8 @@ class ArmijoPhiFunc:
         :param alpha: given step size.
         :return: value of tangent to phi at given alpha.
         '''
-        c = -np.matmul(np.transpose(self.g(self.x)), self.direction(self.x))
+        c = -np.matmul(np.transpose(self.g(self.x)), self.direction)
+        #c = np.matmul(np.transpose(self.g(self.x)), self.direction)
         return self.sigma * alpha * c
 
 

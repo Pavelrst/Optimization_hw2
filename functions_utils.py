@@ -3,28 +3,26 @@ import numpy as np
 from numdiff_utils import numdiff
 from scipy.io import loadmat
 
+
 class Rosenbrock():
     def __init__(self, N):
         '''
         :param N: length of input vector
         '''
         self.N = N
+        self.name = 'Rosenbrock(' + str(N) + ') function'
+
+    def name(self):
+        return self.name
 
     def starting_point(self):
         return np.array([0]*self.N)
 
-    def optimal(self):
-        '''
-        Optimal value of Rosenbrock function at [1,1,1,1....1,1]
-        :param N: num of variables in Rosenbrock function
-        :return: global minimum position.
-        '''
+    @staticmethod
+    def optimal():
         return 0
 
     def val(self, x, test=False):
-        '''
-        This method returns Rosenbroc_function value
-        '''
         assert len(x) == self.N
         val = 0
         for idx in range(len(x)-1):
@@ -35,9 +33,6 @@ class Rosenbrock():
         return val
 
     def grad(self, x, test=False):
-        '''
-        This method returns rosengrad function gradient
-        '''
         g = np.zeros_like(x)
         # [-2(1-x_1 )+200(x_2-x_1^2 )(-2x_1 )]
         g[0] = -2*(1-x[0])+200*(x[1]-x[0]**2)*(-2*x[0])
@@ -84,14 +79,12 @@ class Rosenbrock():
 
 
 class Quadratic:
-    def __init__(self, htype='well'):
-        '''
-        f(x) = 0.5 xHx
-        '''
+    def __init__(self, h_type='well'):
+        self.name = 'Quadratic ' + h_type + ' conditioned function'
         self.mat_file = loadmat("h.mat")
-        if htype == 'well':
+        if h_type == 'well':
             self.H = self.mat_file['H_well']
-        elif htype == 'ill':
+        elif h_type == 'ill':
             '''
             A matrix is ill-conditioned if the condition number is too large
             (and singular if it is infinite)
@@ -100,13 +93,17 @@ class Quadratic:
             '''
             self.H = self.mat_file['H_ill']
         else:
-            print("define htype 'well' or 'ill'!")
+            print("define h_type 'well' or 'ill'!")
         self.H_T = np.transpose(self.H)
+
+    def name(self):
+        return self.name
 
     def starting_point(self):
         return self.mat_file['x0']
 
-    def optimal(self):
+    @staticmethod
+    def optimal():
         '''
         Optimal value of f
         '''

@@ -1,4 +1,3 @@
-import numpy as np
 import matplotlib.pyplot as plt
 from functions_utils import *
 from armijo_utils import Armijo_method
@@ -58,8 +57,7 @@ class Gradient_descent():
         self.step_sizes_list.append(step_size)
         return x
 
-
-    def plot_stepsizes(self):
+    def plot_step_sizes(self):
         iterations_list = range(len(self.step_sizes_list))
 
         a, = plt.plot(iterations_list, self.step_sizes_list, label='step size')
@@ -82,7 +80,7 @@ class Gradient_descent():
 
         return iterations_list, converg_list
 
-    def plot_convergence(self, val_optimal, f_name='plot title', save = True):
+    def plot_convergence(self, val_optimal, f_name='plot title', marker=None, save = True):
         '''
         plots the convergence rate
         :param f_list: list of values of f during gradient descent algo
@@ -100,6 +98,9 @@ class Gradient_descent():
         plt.yscale('log')
         label = f_name + ' - ' + self.method_type + ' convergence rate'
         plt.title(label)
+        if marker != None:
+            x, y = marker
+            plt.plot(x, y, 'ro')
         plt.gcf()
         name = label + '_fig.JPEG'
         plt.savefig(name, bbox_inches='tight')

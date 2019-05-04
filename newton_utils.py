@@ -5,7 +5,7 @@ from mcholmz import modifiedChol
 
 class NewtonMethod:
     @staticmethod
-    def direction(self, x, func):
+    def direction(x, func):
         L, d, e = modifiedChol(func.hess(x))
         D = np.diag(d.flatten())
         L_T = np.transpose(L)

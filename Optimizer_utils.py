@@ -17,52 +17,46 @@ class Gradient_descent():
         self.method_type = method_type
 
     def optimize(self, func, start_point):
-        self.f_val_list = []
+        self.f_val_list = [func.val(start_point)]
         self.step_sizes_list = []
 
-        # First step size
-        # if self.method_type == 'gradient_descent':
-        step_size = self.step_size_estimator.calc_step_size(start_point, func, direction=func.grad(start_point))
-        # else:
-        #     newton = NewtonMethod()
-        #     d = newton.direction_cheat(start_point, func)
-        #     step_size = self.step_size_estimator.calc_step_size(start_point, func, direction=d)
         x = start_point
 
         for step in range(self.max_steps):
+            print("step:", step)
             prev_x = x
             if self.method_type == 'steepest_descent':
-                step_size, x = self.optimizer_step(x, func, step_size)
+                x = self.optimizer_step(x, func)
             elif self.method_type == 'newton_method':
-                step_size, x = self.optimizer_step_newton(x, func, step_size)
+                x = self.optimizer_step_newton(x, func)
             else:
                 print("Direction method not selected")
                 break
             self.f_val_list.append(func.val(x))
 
-            if self.verbose:
-                print("f(x)=", func.val(x), "next step size= ~", np.round(step_size, 5), " current point= ~", np.round(x, 5))
-            else:
-                print("step:",step)
+            # if self.verbose:
+            #     print("f(x)=", func.val(x), "next step size= ~", np.round(step_size, 5), " current point= ~", np.round(x, 5))
+
             if np.linalg.norm(func.grad(x)) < self.threshold:
                 print("Optimizer reached accuracy threshold after", step, "iterations!")
                 break
 
-    def optimizer_step(self, x, func, step_size):
+    def optimizer_step(self, x, func):
+        step_size = self.step_size_estimator.calc_step_size(x, func, direction=func.grad(x))
         x = x - step_size * func.grad(x)
-        next_step_size = self.step_size_estimator.calc_step_size(x, func, direction=func.grad(x))
-        #self.step_size_estimator.armijo_plot()
-        self.step_sizes_list.append(next_step_size)
-        return next_step_size, x
-
-    def optimizer_step_newton(self, x, func, step_size):
-        newton = NewtonMethod()
-        d = newton.direction_cheat(x, func)
-        x = x - step_size * d
-        next_step_size = self.step_size_estimator.calc_step_size(x, func, direction=d)
         # self.step_size_estimator.armijo_plot()
-        self.step_sizes_list.append(next_step_size)
-        return next_step_size, x
+        self.step_sizes_list.append(step_size)
+        return x
+
+    def optimizer_step_newton(self, x, func):
+        newton = NewtonMethod()
+        d = newton.direction(x, func)
+        step_size = self.step_size_estimator.calc_step_size(x, func, direction=d)
+        x = x - step_size * d
+
+        # self.step_size_estimator.armijo_plot()
+        self.step_sizes_list.append(step_size)
+        return x
 
 
     def plot_stepsizes(self):

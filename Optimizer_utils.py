@@ -20,40 +20,47 @@ class Gradient_descent():
         self.f_val_list = []
         self.step_sizes_list = []
 
-        step_size = self.step_size_estimator.calc_step_size(start_point, func)
+        # First step size
+        # if self.method_type == 'gradient_descent':
+        step_size = self.step_size_estimator.calc_step_size(start_point, func, direction=func.grad(start_point))
+        # else:
+        #     newton = NewtonMethod()
+        #     d = newton.direction_cheat(start_point, func)
+        #     step_size = self.step_size_estimator.calc_step_size(start_point, func, direction=d)
         x = start_point
 
         for step in range(self.max_steps):
             prev_x = x
             if self.method_type == 'steepest_descent':
                 step_size, x = self.optimizer_step(x, func, step_size)
-            elif self.method_type == 'newton':
+            elif self.method_type == 'newton_method':
                 step_size, x = self.optimizer_step_newton(x, func, step_size)
             else:
                 print("Direction method not selected")
                 break
+            self.f_val_list.append(func.val(x))
+
             if self.verbose:
                 print("f(x)=", func.val(x), "next step size= ~", np.round(step_size, 5), " current point= ~", np.round(x, 5))
             else:
                 print("step:",step)
-
             if np.linalg.norm(func.grad(x)) < self.threshold:
                 print("Optimizer reached accuracy threshold after", step, "iterations!")
                 break
 
     def optimizer_step(self, x, func, step_size):
-        self.f_val_list.append(func.val(x))
         x = x - step_size * func.grad(x)
-        next_step_size = self.step_size_estimator.calc_step_size(x, func)
+        next_step_size = self.step_size_estimator.calc_step_size(x, func, direction=func.grad(x))
+        #self.step_size_estimator.armijo_plot()
         self.step_sizes_list.append(next_step_size)
         return next_step_size, x
 
     def optimizer_step_newton(self, x, func, step_size):
         newton = NewtonMethod()
-        self.f_val_list.append(func.val(x))
-        d = newton.direction(x, func)
-        x = x + step_size * d
-        next_step_size = self.step_size_estimator.calc_step_size(x, func)
+        d = newton.direction_cheat(x, func)
+        x = x - step_size * d
+        next_step_size = self.step_size_estimator.calc_step_size(x, func, direction=d)
+        # self.step_size_estimator.armijo_plot()
         self.step_sizes_list.append(next_step_size)
         return next_step_size, x
 
@@ -81,7 +88,7 @@ class Gradient_descent():
 
         return iterations_list, converg_list
 
-    def plot_convergence(self, val_optimal):
+    def plot_convergence(self, val_optimal, f_name='plot title', save = True):
         '''
         plots the convergence rate
         :param f_list: list of values of f during gradient descent algo
@@ -97,5 +104,10 @@ class Gradient_descent():
         plt.ylabel('f(x)-f* / log')
         plt.xlabel('iterations')
         plt.yscale('log')
+        label = f_name + ' - ' + self.method_type + ' convergence rate'
+        plt.title(label)
+        plt.gcf()
+        name = label + '_fig.JPEG'
+        plt.savefig(name, bbox_inches='tight')
         plt.show()
 

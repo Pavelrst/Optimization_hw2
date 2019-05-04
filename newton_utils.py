@@ -10,7 +10,7 @@ class NewtonMethod:
         L_T = np.transpose(L)
 
         # backward substitution
-        y = np.linalg.solve(L, -func.grad(x))
+        y = np.linalg.solve(L, func.grad(x))
 
         # daigonal system
         z = np.linalg.solve(D, y)
@@ -20,6 +20,7 @@ class NewtonMethod:
         return d
 
     def direction_cheat(self, x, func):
+        # We are not using this function as we don't want to inverse Hessian.
         H_inv = np.linalg.inv(func.hess(x))
-        return np.matmul(-H_inv, func.grad(x))
+        return np.matmul(H_inv, func.grad(x))
 

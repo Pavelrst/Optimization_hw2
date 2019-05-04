@@ -9,6 +9,10 @@ class Rosenbrock():
         :param N: length of input vector
         '''
         self.N = N
+        self.name = 'Rosenbrock(' + str(N) + ') function'
+
+    def name(self):
+        return self.name
 
     def starting_point(self):
         return np.array([0]*self.N)
@@ -85,9 +89,7 @@ class Rosenbrock():
 
 class Quadratic:
     def __init__(self, htype='well'):
-        '''
-        f(x) = 0.5 xHx
-        '''
+        self.name = 'Quadratic ' + htype + ' conditioned function'
         self.mat_file = loadmat("h.mat")
         if htype == 'well':
             self.H = self.mat_file['H_well']
@@ -102,6 +104,9 @@ class Quadratic:
         else:
             print("define htype 'well' or 'ill'!")
         self.H_T = np.transpose(self.H)
+
+    def name(self):
+        return self.name
 
     def starting_point(self):
         return self.mat_file['x0']
